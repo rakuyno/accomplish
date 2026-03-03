@@ -184,6 +184,11 @@ export function registerIPCHandlers(): void {
       validatedConfig.modelId = selectedModel.model;
     }
 
+    const selectedAgent = storage.getSelectedAgent();
+    if (selectedAgent && selectedAgent.system_prompt.trim()) {
+      validatedConfig.systemPromptAppend = selectedAgent.system_prompt.trim();
+    }
+
     const callbacks = createTaskCallbacks({
       taskId,
       window,
@@ -201,6 +206,7 @@ export function registerIPCHandlers(): void {
     task.messages = [initialUserMessage];
 
     storage.saveTask(task);
+    storage.updateTaskAgentId(taskId, selectedAgent?.id ?? 'default');
 
     generateTaskSummary(validatedConfig.prompt, getApiKey)
       .then((summary) => {
@@ -1357,6 +1363,40 @@ export function registerIPCHandlers(): void {
   handle('connectors:disconnect', async (_event, connectorId: string) => {
     storage.deleteConnectorTokens(connectorId);
     storage.setConnectorStatus(connectorId, 'disconnected');
+  });
+
+  // ── Agents ──────────────────────────────────────────────────────────────────
+
+  handle('agents:list', async () => {
+    return storage.getAllAgents();
+  });
+
+  handle('agents:create', async (_event, fields: { name: string; system_prompt: string }) => {
+    const id = crypto.randomUUID();
+    return storage.createAgent({ id, name: fields.name, system_prompt: fields.system_prompt });
+  });
+
+  handle(
+    'agents:update',
+    async (_event, id: string, fields: { name?: string; system_prompt?: string }) => {
+      storage.updateAgent(id, fields);
+    },
+  );
+
+  handle('agents:delete', async (_event, id: string) => {
+    if (id === 'default') throw new Error('Cannot delete the default agent.');
+    storage.deleteAgent(id);
+    if (storage.getSelectedAgentId() === id) {
+      storage.setSelectedAgentId('default');
+    }
+  });
+
+  handle('agents:select', async (_event, id: string) => {
+    storage.setSelectedAgentId(id);
+  });
+
+  handle('agents:get-selected', async () => {
+    return storage.getSelectedAgentId();
   });
 }
 

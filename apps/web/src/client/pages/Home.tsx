@@ -107,6 +107,11 @@ export function HomePage() {
     setShowSettingsDialog(true);
   }, []);
 
+  const handleOpenAgentSettings = useCallback(() => {
+    setSettingsInitialTab('agents');
+    setShowSettingsDialog(true);
+  }, []);
+
   const handleApiKeySaved = async () => {
     setShowSettingsDialog(false);
     if (prompt.trim()) {
@@ -172,6 +177,7 @@ export function HomePage() {
                 autoFocus={true}
                 onOpenSpeechSettings={handleOpenSpeechSettings}
                 onOpenModelSettings={handleOpenModelSettings}
+                onOpenAgentSettings={handleOpenAgentSettings}
                 hideModelWhenNoModel={true}
                 toolbarLeft={
                   <PlusMenu

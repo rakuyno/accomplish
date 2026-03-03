@@ -154,6 +154,19 @@ async function main() {
   console.log(`\nNode.js v${NODE_VERSION} Binary Downloader`);
   console.log('='.repeat(50));
 
+  // Respect --platform=<name> when passed (e.g. from ensure-agent-core-built.cjs)
+  const platformArg = process.argv.slice(2).find((a) => a.startsWith('--platform='));
+  const platformFilter = platformArg ? platformArg.split('=')[1] : null;
+  const platformsToProcess = platformFilter
+    ? PLATFORMS.filter((p) => p.name === platformFilter)
+    : PLATFORMS;
+
+  if (platformFilter && platformsToProcess.length === 0) {
+    console.error(`Unknown platform: ${platformFilter}`);
+    console.error(`Valid platforms: ${PLATFORMS.map((p) => p.name).join(', ')}`);
+    process.exit(1);
+  }
+
   // Create resources directory
   if (!fs.existsSync(RESOURCES_DIR)) {
     fs.mkdirSync(RESOURCES_DIR, { recursive: true });
@@ -165,7 +178,7 @@ async function main() {
     fs.mkdirSync(tempDir, { recursive: true });
   }
 
-  for (const platform of PLATFORMS) {
+  for (const platform of platformsToProcess) {
     console.log(`\nProcessing ${platform.name}...`);
 
     const archivePath = path.join(tempDir, platform.file);

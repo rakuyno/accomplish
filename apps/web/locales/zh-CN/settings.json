@@ -208,6 +208,7 @@
   },
   "tabs": {
     "providers": "服务商",
+    "agents": "智能体",
     "connectors": "连接器",
     "skills": "技能",
     "voiceInput": "语音输入",

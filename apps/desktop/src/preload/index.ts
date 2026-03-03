@@ -469,6 +469,21 @@ const accomplishAPI = {
       ipcRenderer.removeListener('auth:mcp-callback', listener);
     };
   },
+
+  // Agents
+  listAgents: (): Promise<
+    Array<{ id: string; name: string; system_prompt: string; created_at: string }>
+  > => ipcRenderer.invoke('agents:list'),
+  createAgent: (fields: {
+    name: string;
+    system_prompt: string;
+  }): Promise<{ id: string; name: string; system_prompt: string; created_at: string }> =>
+    ipcRenderer.invoke('agents:create', fields),
+  updateAgent: (id: string, fields: { name?: string; system_prompt?: string }): Promise<void> =>
+    ipcRenderer.invoke('agents:update', id, fields),
+  deleteAgent: (id: string): Promise<void> => ipcRenderer.invoke('agents:delete', id),
+  selectAgent: (id: string): Promise<void> => ipcRenderer.invoke('agents:select', id),
+  getSelectedAgentId: (): Promise<string> => ipcRenderer.invoke('agents:get-selected'),
 };
 
 // Expose the API to the renderer

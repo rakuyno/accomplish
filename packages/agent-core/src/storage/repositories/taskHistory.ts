@@ -9,6 +9,7 @@ export interface StoredTask {
   status: TaskStatus;
   messages: TaskMessage[];
   sessionId?: string;
+  agentId: string;
   createdAt: string;
   startedAt?: string;
   completedAt?: string;
@@ -20,6 +21,7 @@ interface TaskRow {
   summary: string | null;
   status: string;
   session_id: string | null;
+  agent_id: string;
   created_at: string;
   started_at: string | null;
   completed_at: string | null;
@@ -100,6 +102,7 @@ function rowToTask(row: TaskRow): StoredTask {
     summary: row.summary || undefined,
     status: row.status as TaskStatus,
     sessionId: row.session_id || undefined,
+    agentId: row.agent_id ?? 'default',
     createdAt: row.created_at,
     startedAt: row.started_at || undefined,
     completedAt: row.completed_at || undefined,
@@ -241,6 +244,11 @@ export function updateTaskSessionId(taskId: string, sessionId: string): void {
 export function updateTaskSummary(taskId: string, summary: string): void {
   const db = getDatabase();
   db.prepare('UPDATE tasks SET summary = ? WHERE id = ?').run(summary, taskId);
+}
+
+export function updateTaskAgentId(taskId: string, agentId: string): void {
+  const db = getDatabase();
+  db.prepare('UPDATE tasks SET agent_id = ? WHERE id = ?').run(agentId, taskId);
 }
 
 export function deleteTask(taskId: string): void {

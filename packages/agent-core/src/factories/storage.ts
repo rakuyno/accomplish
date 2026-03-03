@@ -12,6 +12,7 @@ import {
   addTaskMessage,
   updateTaskSessionId,
   updateTaskSummary,
+  updateTaskAgentId,
   deleteTask,
   clearHistory,
   getTodosForTask,
@@ -65,6 +66,16 @@ import {
   deleteConnector,
   clearAllConnectors,
 } from '../storage/repositories/connectors.js';
+import {
+  getAllAgents,
+  getAgentById,
+  createAgent,
+  updateAgent,
+  deleteAgent,
+  getSelectedAgentId,
+  setSelectedAgentId,
+  getSelectedAgent,
+} from '../storage/repositories/agents.js';
 import { SecureStorage } from '../internal/classes/SecureStorage.js';
 import type { OAuthTokens } from '../common/types/connector.js';
 import type { StorageAPI, StorageOptions } from '../types/storage.js';
@@ -97,6 +108,7 @@ export function createStorage(options: StorageOptions = {}): StorageAPI {
     addTaskMessage: (taskId, message) => addTaskMessage(taskId, message),
     updateTaskSessionId: (taskId, sessionId) => updateTaskSessionId(taskId, sessionId),
     updateTaskSummary: (taskId, summary) => updateTaskSummary(taskId, summary),
+    updateTaskAgentId: (taskId, agentId) => updateTaskAgentId(taskId, agentId),
     deleteTask: (taskId) => deleteTask(taskId),
     clearHistory: () => clearHistory(),
     getTodosForTask: (taskId) => getTodosForTask(taskId),
@@ -162,6 +174,16 @@ export function createStorage(options: StorageOptions = {}): StorageAPI {
       }
     },
     deleteConnectorTokens: (connectorId) => secureStorage.delete(`connector-tokens:${connectorId}`),
+
+    // Agents
+    getAllAgents: () => getAllAgents(),
+    getAgentById: (id) => getAgentById(id),
+    createAgent: (agent) => createAgent(agent),
+    updateAgent: (id, fields) => updateAgent(id, fields),
+    deleteAgent: (id) => deleteAgent(id),
+    getSelectedAgentId: () => getSelectedAgentId(),
+    setSelectedAgentId: (agentId) => setSelectedAgentId(agentId),
+    getSelectedAgent: () => getSelectedAgent(),
 
     // Secure Storage
     storeApiKey: (provider, apiKey) => secureStorage.storeApiKey(provider, apiKey),

@@ -36,6 +36,8 @@ export interface StoredTask {
   status: TaskStatus;
   messages: TaskMessage[];
   sessionId?: string;
+  /** ID of the agent profile that was active when this task was launched */
+  agentId: string;
   createdAt: string;
   startedAt?: string;
   completedAt?: string;
@@ -76,6 +78,8 @@ export interface TaskStorageAPI {
   updateTaskSessionId(taskId: string, sessionId: string): void;
   /** Set the AI-generated summary for a task */
   updateTaskSummary(taskId: string, summary: string): void;
+  /** Set the agent profile that ran this task */
+  updateTaskAgentId(taskId: string, agentId: string): void;
   /** Delete a task and its associated data */
   deleteTask(taskId: string): void;
   /** Delete all task history */
@@ -214,6 +218,34 @@ export interface ConnectorStorageAPI {
   deleteConnectorTokens(connectorId: string): void;
 }
 
+/** An agent profile that customises the AI's persona and behaviour */
+export interface Agent {
+  id: string;
+  name: string;
+  system_prompt: string;
+  created_at: string;
+}
+
+/** API for agent profile management */
+export interface AgentStorageAPI {
+  /** Get all agent profiles */
+  getAllAgents(): Agent[];
+  /** Get an agent by ID, returns null if not found */
+  getAgentById(id: string): Agent | null;
+  /** Create a new agent profile */
+  createAgent(agent: Omit<Agent, 'created_at'>): Agent;
+  /** Update name and/or system_prompt of an existing agent */
+  updateAgent(id: string, fields: Partial<Pick<Agent, 'name' | 'system_prompt'>>): void;
+  /** Delete an agent profile */
+  deleteAgent(id: string): void;
+  /** Get the ID of the currently selected agent */
+  getSelectedAgentId(): string;
+  /** Set the currently selected agent */
+  setSelectedAgentId(agentId: string): void;
+  /** Get the currently selected agent record, or null if not found */
+  getSelectedAgent(): Agent | null;
+}
+
 /** API for database initialization and lifecycle management */
 export interface DatabaseLifecycleAPI {
   /** Initialize the database, creating it if needed and running migrations */
@@ -226,7 +258,7 @@ export interface DatabaseLifecycleAPI {
   getDatabasePath(): string | null;
 }
 
-/** Unified storage API combining task, settings, provider, secure storage, connector, and database lifecycle operations */
+/** Unified storage API combining all sub-APIs */
 export interface StorageAPI
   extends
     TaskStorageAPI,
@@ -234,6 +266,7 @@ export interface StorageAPI
     ProviderSettingsAPI,
     SecureStorageAPI,
     ConnectorStorageAPI,
+    AgentStorageAPI,
     DatabaseLifecycleAPI {}
 
 export type {

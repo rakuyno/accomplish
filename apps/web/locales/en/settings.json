@@ -236,6 +236,7 @@
   },
   "tabs": {
     "providers": "Providers",
+    "agents": "Agents",
     "connectors": "Connectors",
     "skills": "Skills",
     "voiceInput": "Voice Input",

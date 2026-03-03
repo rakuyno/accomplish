@@ -46,6 +46,8 @@ export type {
   AppSettingsAPI,
   ProviderSettingsAPI,
   SecureStorageAPI,
+  AgentStorageAPI,
+  Agent,
   DatabaseLifecycleAPI,
   // Permission Handler API
   PermissionHandlerAPI,

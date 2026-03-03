@@ -221,8 +221,13 @@ export async function buildCliArgs(config: TaskConfig, _taskId: string): Promise
   const activeModel = storage.getActiveProviderModel();
   const selectedModel = activeModel || storage.getSelectedModel();
 
+  let prompt = config.prompt;
+  if (config.systemPromptAppend?.trim()) {
+    prompt = `<agent-persona>\n${config.systemPromptAppend.trim()}\n</agent-persona>\n\n${config.prompt}`;
+  }
+
   return coreBuildCliArgs({
-    prompt: config.prompt,
+    prompt,
     sessionId: config.sessionId,
     selectedModel: selectedModel
       ? {

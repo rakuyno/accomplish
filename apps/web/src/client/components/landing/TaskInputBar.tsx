@@ -9,6 +9,7 @@ import { useSpeechInput } from '@/hooks/useSpeechInput';
 import { useTypingPlaceholder } from '@/hooks/useTypingPlaceholder';
 import { SpeechInputButton } from '@/components/ui/SpeechInputButton';
 import { ModelIndicator } from '@/components/ui/ModelIndicator';
+import { AgentIndicator } from '@/components/ui/AgentIndicator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -24,6 +25,7 @@ interface TaskInputBarProps {
   autoFocus?: boolean;
   onOpenSpeechSettings?: () => void;
   onOpenModelSettings?: () => void;
+  onOpenAgentSettings?: () => void;
   hideModelWhenNoModel?: boolean;
   autoSubmitOnTranscription?: boolean;
   toolbarLeft?: ReactNode;
@@ -41,6 +43,7 @@ export function TaskInputBar({
   autoFocus = false,
   onOpenSpeechSettings,
   onOpenModelSettings,
+  onOpenAgentSettings,
   hideModelWhenNoModel = false,
   autoSubmitOnTranscription = true,
   toolbarLeft,
@@ -157,6 +160,8 @@ export function TaskInputBar({
           <div className="flex items-center">{toolbarLeft}</div>
 
           <div className="flex items-center gap-3">
+            {onOpenAgentSettings && <AgentIndicator onOpenSettings={onOpenAgentSettings} />}
+
             {onOpenModelSettings && (
               <ModelIndicator
                 isRunning={false}
