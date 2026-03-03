@@ -1,9 +1,13 @@
+import { app } from 'electron';
 import type { BrowserWindow } from 'electron';
 import type { TaskMessage, TaskResult, TaskStatus, TodoItem } from '@accomplish_ai/agent-core';
 import { mapResultToStatus } from '@accomplish_ai/agent-core';
 import { getTaskManager, recoverDevBrowserServer } from '../opencode';
 import type { TaskCallbacks } from '../opencode';
 import { getStorage } from '../store/storage';
+import { getApiKey } from '../store/secureStorage';
+import { writeTaskMemory } from '../memory/task-memory-writer';
+import { updateBrainFromTask } from '../memory/brain-updater';
 
 const DEV_BROWSER_TOOL_PREFIXES = ['dev-browser-mcp_', 'dev_browser_mcp_', 'browser_'];
 const BROWSER_FAILURE_WINDOW_MS = 12000;
@@ -113,6 +117,12 @@ export function createTaskCallbacks(options: TaskCallbacksOptions): TaskCallback
 
       if (result.status === 'success') {
         storage.clearTodosForTask(taskId);
+        void writeTaskMemory(taskId, result, app.getPath('userData'), storage).catch((err) =>
+          console.warn('[Memory] Failed to write task memory:', err),
+        );
+        void updateBrainFromTask(taskId, app.getPath('userData'), storage, getApiKey).catch((err) =>
+          console.warn('[Memory] Failed to update brain:', err),
+        );
       }
     },
 

@@ -16,6 +16,8 @@ const accomplishAPI = {
 
   // Shell
   openExternal: (url: string): Promise<void> => ipcRenderer.invoke('shell:open-external', url),
+  openMemoryFolder: (agentId: string): Promise<void> =>
+    ipcRenderer.invoke('shell:open-memory-folder', agentId),
 
   // Task operations
   startTask: (config: { description: string }): Promise<unknown> =>

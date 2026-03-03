@@ -39,7 +39,7 @@ export default defineConfig({
     },
     {
       name: 'electron-integration',
-      testMatch: /.*integration\.spec\.ts/,
+      testMatch: /.*(integration|memory-brain)\.spec\.ts/,
       timeout: 120000,
       retries: 0,
     },

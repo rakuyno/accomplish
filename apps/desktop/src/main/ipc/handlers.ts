@@ -1,5 +1,6 @@
 import crypto from 'crypto';
-import { ipcMain, BrowserWindow, shell, dialog, nativeTheme } from 'electron';
+import path from 'path';
+import { app, ipcMain, BrowserWindow, shell, dialog, nativeTheme } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron';
 import { URL } from 'url';
 import fs from 'fs';
@@ -41,6 +42,7 @@ import {
   validateLMStudioConfig,
 } from '@accomplish_ai/agent-core';
 import { getStorage } from '../store/storage';
+import { searchMemory } from '../memory/memory-search';
 import { getOpenAiOauthStatus } from '@accomplish_ai/agent-core';
 import { loginOpenAiWithChatGpt } from '../opencode/auth-browser';
 import type {
@@ -187,6 +189,36 @@ export function registerIPCHandlers(): void {
     const selectedAgent = storage.getSelectedAgent();
     if (selectedAgent && selectedAgent.system_prompt.trim()) {
       validatedConfig.systemPromptAppend = selectedAgent.system_prompt.trim();
+    }
+
+    // Memory V3 — inject relevant context from agent's memory vault (keyword search, MVP)
+    const MEMORY_DEFAULTS = { enabled: true, topK: 3, maxChars: 1200, scanLimit: 50 };
+    if (MEMORY_DEFAULTS.enabled) {
+      try {
+        const snippets = searchMemory(
+          selectedAgent?.id ?? 'default',
+          validatedConfig.prompt,
+          app.getPath('userData'),
+          {
+            topK: MEMORY_DEFAULTS.topK,
+            maxChars: MEMORY_DEFAULTS.maxChars,
+            scanLimit: MEMORY_DEFAULTS.scanLimit,
+          },
+        );
+        if (snippets.length > 0) {
+          const block = [
+            '<memory-context>',
+            ...snippets.map((s) => `- [note] ${s.title} (${s.ref}) — ${s.text}`),
+            '</memory-context>',
+          ].join('\n');
+          validatedConfig.systemPromptAppend = validatedConfig.systemPromptAppend
+            ? `${validatedConfig.systemPromptAppend}\n\n${block}`
+            : block;
+          console.log(`[Memory] Injected ${snippets.length} snippet(s) into task prompt`);
+        }
+      } catch (err) {
+        console.warn('[Memory] Context injection failed, continuing without memory:', err);
+      }
     }
 
     const callbacks = createTaskCallbacks({
@@ -1026,6 +1058,17 @@ export function registerIPCHandlers(): void {
     } catch (error) {
       console.error('Failed to open external URL:', error);
       throw error;
+    }
+  });
+
+  handle('shell:open-memory-folder', async (_event: IpcMainInvokeEvent, agentId: string) => {
+    const dir = path.join(app.getPath('userData'), 'agents', agentId, 'memory');
+    try {
+      fs.mkdirSync(dir, { recursive: true });
+      const err = await shell.openPath(dir);
+      if (err) console.warn('[Memory] openPath error:', err);
+    } catch (e) {
+      console.warn('[Memory] Failed to open memory folder:', e);
     }
   });
 

@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { settingsVariants, settingsTransitions } from '@/lib/animations';
 import { getAccomplish } from '@/lib/accomplish';
-import { Trash, PencilSimple, Check, X, UserCircle } from '@phosphor-icons/react';
+import { Trash, PencilSimple, Check, X, UserCircle, FolderOpen } from '@phosphor-icons/react';
 
 interface Agent {
   id: string;
@@ -268,6 +268,13 @@ export function AgentsPanel() {
                         title="Edit agent"
                       >
                         <PencilSimple size={14} />
+                      </button>
+                      <button
+                        onClick={() => void accomplish.openMemoryFolder(agent.id)}
+                        className="rounded p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                        title="Open memory folder"
+                      >
+                        <FolderOpen size={14} />
                       </button>
                       {agent.id !== 'default' && (
                         <button

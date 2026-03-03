@@ -228,6 +228,10 @@ export { generateTaskSummary } from './services/summarizer.js';
 
 export type { GetApiKeyFn } from './services/summarizer.js';
 
+// Brain extractor
+export { extractBrainFacts } from './services/brain-extractor.js';
+export type { BrainItem, BrainItemType } from './services/brain-extractor.js';
+
 // -----------------------------------------------------------------------------
 // Skills Module (from ./skills/)
 // -----------------------------------------------------------------------------

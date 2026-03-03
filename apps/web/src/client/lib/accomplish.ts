@@ -34,6 +34,7 @@ interface AccomplishAPI {
 
   // Shell
   openExternal(url: string): Promise<void>;
+  openMemoryFolder(agentId: string): Promise<void>;
 
   // Task operations
   startTask(config: TaskConfig): Promise<Task>;
